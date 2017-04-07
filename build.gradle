@@ -1,0 +1,36 @@
+group 'hfe'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'war'
+//apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
+apply plugin: 'org.apache.tomee.tomee-embedded'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.apache.tomee.gradle:tomee-embedded:7.0.3'
+    }
+}
+
+dependencies {
+
+    //compile 'javax.faces:jsf-api:2.1'
+
+    testCompile 'org.testng:testng:6.11'
+    testCompile 'org.wildfly:wildfly-embedded:9.0.2.Final'
+
+
+    //compileOnly 'org.jboss.spec.javax.faces:jboss-jsf-api_2.2_spec:2.2.13'
+    //compileOnly 'com.sun.faces:jsf-impl:2.2.13.SP1'
+}
