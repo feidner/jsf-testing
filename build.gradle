@@ -4,7 +4,7 @@ version '1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'war'
 //apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
-apply plugin: 'org.apache.tomee.tomee-embedded'
+//apply plugin: 'org.apache.tomee.tomee-embedded'
 
 sourceCompatibility = 1.8
 
@@ -19,16 +19,43 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.apache.tomee.gradle:tomee-embedded:7.0.3'
+        //classpath 'org.apache.tomee.gradle:tomee-embedded:7.0.3'
     }
 }
 
 dependencies {
 
     //compile 'javax.faces:jsf-api:2.1'
+    compileOnly 'javax.servlet:javax.servlet-api:3.1.0'
 
+    //testCompile 'junit:junit:4.12'
     testCompile 'org.testng:testng:6.11'
-    testCompile 'org.wildfly:wildfly-embedded:9.0.2.Final'
+    //testCompile 'org.wildfly:wildfly-embedded:9.0.2.Final'
+    //testCompile 'org.wildfly:wildfly-arquillian-container-embedded:8.2.1.Final'
+    //testCompile 'org.wildfly.arquillian:wildfly-arquillian-container-managed:2.0.2.Final'
+    //testCompile 'org.jboss.arquillian.testng:arquillian-testng-container:1.1.13.Final'
+    //testCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.1.13.Final'
+    //testCompile 'org.jboss.arquillian.container:arquillian-tomcat-embedded-8:1.0.0'
+    //testCompile 'org.apache.tomcat.embed:tomcat-embed-core:8.0.32'
+    //testCompile 'org.apache.tomcat:tomcat-juli:8.5.13'
+    //testCompile 'org.apache.tomcat:tomcat-util-scan:8.5.13'
+    //testCompile 'org.apache.tomcat:tomcat-jasper:8.5.13'
+    testCompile 'org.apache.httpcomponents:httpclient:4.5.3'
+    testCompile ('org.seleniumhq.selenium:selenium-java:3.3.1') {
+        exclude module: 'junit'
+    }
+    //testCompile 'org.seleniumhq.selenium:selenium-chrome-driver:3.3.1'
+    //testCompile 'org.seleniumhq.selenium:selenium-firefox-driver:3.3.1'
+    testCompile 'org.eclipse.jetty:jetty-server:9.4.3.v20170317'
+    testCompile 'org.apache.cxf:cxf-rt-rs-client:3.1.10'
+
+    testCompile ('org.apache.openejb:tomee-embedded:1.7.4') {
+        exclude module: 'junit'
+    }
+    //testCompile ('org.apache.openejb:openejb-core:4.7.4')
+    //testCompile 'org.apache.openejb:openejb-server:4.7.4'
+    //testCompile 'org.apache.openejb:openejb-http:4.7.4'
+
 
 
     //compileOnly 'org.jboss.spec.javax.faces:jboss-jsf-api_2.2_spec:2.2.13'
