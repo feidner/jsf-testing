@@ -15,8 +15,8 @@ public class InitServletTest {
     @Test
     public void initWebsiteWithHtmlUnitDriver() throws Exception {
         WebDriver driver = new HtmlUnitDriver();
-        HfeUtils.runWithHtmlSite(EmbeddedTomcatListener.WEB_INF_PATH + "/init/callme.html", EmbeddedTomcatListener.WEB_INF_PATH + "/init/", "pippa",
-                () -> driver.get("http://localhost:8080/" + EmbeddedTomcatListener.APP_NAME + "/init/callme.html"));
+        HfeUtils.runWithHtmlSite(EmbeddedTomcatListener.WEB_INF_PATH + "/init/call.html", EmbeddedTomcatListener.WEB_INF_PATH + "/init/", "pippa",
+                () -> driver.get("http://localhost:8080/" + EmbeddedTomcatListener.APP_NAME + "/init/call.html"));
         assertTrue(driver.getPageSource().contains("pippa"));
         driver.close();
         driver.quit();
