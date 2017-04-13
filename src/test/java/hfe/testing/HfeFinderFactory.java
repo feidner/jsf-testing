@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -35,6 +36,9 @@ public class HfeFinderFactory extends FinderFactory {
     private Filter filter;
 
     public HfeFinderFactory() {
+        if(!System.getProperties().contains(FINDER_XML)) {
+            replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>());
+        }
         StfpFinderXmlScanner scanner = read();
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-includes: %s", scanner.getIncludes()));
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-definitly: %s", scanner.getDefinitlyIncludes()));
@@ -232,7 +236,7 @@ public class HfeFinderFactory extends FinderFactory {
         try {
             final SAXParser parser = Saxs.factory().newSAXParser();
             final StfpFinderXmlScanner handler = new StfpFinderXmlScanner();
-            parser.parse(IOUtils.toInputStream(xmlString), handler);
+            parser.parse(IOUtils.toInputStream(xmlString, Charset.defaultCharset()), handler);
             return handler;
         } catch (final Exception e) {
             throw new RuntimeException("can't parse " + xmlString);

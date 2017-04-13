@@ -1,6 +1,6 @@
 package hfe.servlets;
 
-import config.UrlPatternPrefix;
+import hfe.config.UrlPatternPrefix;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

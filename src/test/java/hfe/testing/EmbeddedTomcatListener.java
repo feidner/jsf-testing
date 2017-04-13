@@ -9,7 +9,6 @@ import org.testng.ITestResult;
 import javax.ejb.embeddable.EJBContainer;
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 public class EmbeddedTomcatListener implements IInvokedMethodListener {
@@ -20,8 +19,6 @@ public class EmbeddedTomcatListener implements IInvokedMethodListener {
 
     @Override
     public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
-        HfeFinderFactory.replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>());
-
         Map<Object, Object> properties = new HashMap();
         properties.put(EJBContainer.PROVIDER, EmbeddedTomEEContainer.class);
         properties.put(EJBContainer.MODULES, new File[] { new File(MODULE_PATH)});
