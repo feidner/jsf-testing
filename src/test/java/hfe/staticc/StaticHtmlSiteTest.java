@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import java.util.logging.Logger;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 @Listeners(EmbeddedTomcatListener.class)
 public class StaticHtmlSiteTest {
@@ -22,27 +22,27 @@ public class StaticHtmlSiteTest {
     public void loadSiteContainingStringMatsInHtmlCode_ThenResponseContainsStringMats() throws Exception {
         HfeUtils.runWithHtmlSite("build/war_exploded/call.html", null, "mats",
             () -> execute(new HttpGet("http://localhost:8080/hfe/call.html"),
-                    response -> assertEquals("mats", EntityUtils.toString(response.getEntity()))));
+                    response -> assertEquals(EntityUtils.toString(response.getEntity()), "mats")));
     }
 
     @Test
     public void loadExisintgSite_ThenStatusCodeIs200() throws Exception {
         HfeUtils.runWithHtmlSite("build/war_exploded/call200.html", null, "mats",
                 () -> execute(new HttpGet("http://localhost:8080/hfe/call200.html"),
-                        response -> assertEquals(200, response.getStatusLine().getStatusCode())));
+                        response -> assertEquals(response.getStatusLine().getStatusCode(), 200)));
     }
 
     @Test
     public void loadNotExisintgSite_ThenStatusCodeIs404() throws Exception {
         execute(new HttpGet("http://localhost:8080/hfe/nichtda.html"),
-                response -> assertEquals(404, response.getStatusLine().getStatusCode()));
+                response -> assertEquals(response.getStatusLine().getStatusCode(), 404));
     }
 
     @Test
     public void login() {
         execute(new HttpGet("http://localhost:8080/hfe/login.xhtml"), response -> {
             Logger.getLogger("me").info(EntityUtils.toString(response.getEntity()));
-            assertEquals(200, response.getStatusLine().getStatusCode());
+            assertEquals(response.getStatusLine().getStatusCode(), 200);
         });
     }
 

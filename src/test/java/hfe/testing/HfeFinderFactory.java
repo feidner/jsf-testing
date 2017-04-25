@@ -1,6 +1,5 @@
 package hfe.testing;
 
-import hfe.tools.StopWatch;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.openejb.config.DeploymentModule;
@@ -8,6 +7,7 @@ import org.apache.openejb.config.FinderFactory;
 import org.apache.openejb.config.Module;
 import org.apache.openejb.config.WebModule;
 import org.apache.openejb.util.Saxs;
+import org.apache.webbeans.util.ClassUtil;
 import org.apache.xbean.finder.Annotated;
 import org.apache.xbean.finder.IAnnotationFinder;
 import org.apache.xbean.finder.archive.*;
@@ -18,6 +18,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.annotation.ManagedBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.xml.parsers.SAXParser;
@@ -32,17 +33,18 @@ import java.util.stream.Collectors;
 
 public class HfeFinderFactory extends FinderFactory {
     private static final String FINDER_XML = "FINDER_XML";
-    private StopWatch watch = StopWatch.createAndStart();
     private Filter filter;
+    private StfpFinderXmlScanner scanner;
 
     public HfeFinderFactory() {
-        if(!System.getProperties().contains(FINDER_XML)) {
-            replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>());
+        if (!System.getProperties().containsKey(FINDER_XML)) {
+            replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
         }
-        StfpFinderXmlScanner scanner = read();
+        scanner = read();
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-includes: %s", scanner.getIncludes()));
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-definitly: %s", scanner.getDefinitlyIncludes()));
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-excludes: %s", scanner.getExcludes()));
+        Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-callers: %s", scanner.getCallers()));
         this.filter = scanner.getFilter();
     }
 
@@ -52,17 +54,11 @@ public class HfeFinderFactory extends FinderFactory {
         if (module.getJarLocation() != null) {
             WebModule webModule = (WebModule)module;
             List<URL> scanableUrls = webModule.getScannableUrls();
-            //scanableUrls.clear();
-            //scanableUrls.add(new File("build/classes/main").toURI().toURL());
-            StfpConfigureableClasspathArchive archive = new StfpConfigureableClasspathArchive((Module) module, filter, scanableUrls);
-            watch.start();
-            StfpAnnotationFinder annotationFinder = new StfpAnnotationFinder(archive);
-
-            Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### %s: %s hat gebraucht %s, jar: %s", ((Module) module).getUniqueId(),
-                    annotationFinder.getClass().getSimpleName(), watch.stop(), module.getJarLocation()));
-
+            StfpConfigureableClasspathArchive archive = new StfpConfigureableClasspathArchive(webModule, filter, scanableUrls);
+            HfeAnnotationFinder annotationFinder = new HfeAnnotationFinder(archive, this);
             annotationFinder.link();
             finder = annotationFinder;
+            Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### %s: jar: %s", ((Module) module).getUniqueId(), module.getJarLocation()));
         } else {
             OpenEJBAnnotationFinder openEJBAnnotationFinder = new OpenEJBAnnotationFinder(new ClassesArchive(ensureMinimalClasses(module)));
             openEJBAnnotationFinder.enableMetaAnnotations();
@@ -71,9 +67,13 @@ public class HfeFinderFactory extends FinderFactory {
         return finder;
     }
 
-    private static class StfpAnnotationFinder extends OpenEJBAnnotationFinder {
-        StfpAnnotationFinder(StfpConfigureableClasspathArchive archive) {
+
+
+    private static class HfeAnnotationFinder extends OpenEJBAnnotationFinder {
+        private HfeFinderFactory finder;
+        HfeAnnotationFinder(StfpConfigureableClasspathArchive archive, HfeFinderFactory finder) {
             super(archive);
+            this.finder = finder;
         }
 
         @Override
@@ -82,6 +82,11 @@ public class HfeFinderFactory extends FinderFactory {
                 List<Annotated<Class<?>>> classes = super.findMetaAnnotatedClasses(annotation);
                 Set<Annotated<Class<?>>> classesWithStartupAnnotation = classes.stream().filter(clazz -> clazz.isAnnotationPresent(Startup.class)).collect(Collectors.toSet());
                 //classes.removeAll(classesWithStartupAnnotation);
+                return classes;
+            }
+            if(annotation == ManagedBean.class) {
+                List<Annotated<Class<?>>> classes = super.findMetaAnnotatedClasses(annotation);
+                finder.scanner.getCallers().stream().map(ClassUtil::getClassFromName).filter(clazz -> clazz != null).forEach(caller -> classes.add(new AnnotatedTestObject<>(caller)));
                 return classes;
             }
             return super.findMetaAnnotatedClasses(annotation);
@@ -133,19 +138,19 @@ public class HfeFinderFactory extends FinderFactory {
     }
 
     private static class StfpFinderXmlScanner extends DefaultHandler {
-        private final Set<String> includes = new HashSet<>();
-        private final Set<String> definitlyIncludes = new HashSet<>();
-        private final Set<String> excludes = new HashSet<>();
+        private final Set<String> includes = new HashSet<>(), definitlyIncludes = new HashSet<>(), excludes = new HashSet<>(), callers = new HashSet<>();
         private Set<String> current;
 
         @Override
         public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
-            if ("include".equals(qName)) {
+            if("include".equals(qName)) {
                 current = includes;
-            } else if ("definitlyInclude".equals(qName)) {
+            } else if("definitlyInclude".equals(qName)) {
                 current = definitlyIncludes;
-            } else if ("exclude".equals(qName)) {
+            } else if("exclude".equals(qName)) {
                 current = excludes;
+            } else if("caller".equals(qName)) {
+                current = callers;
             }
         }
 
@@ -175,6 +180,10 @@ public class HfeFinderFactory extends FinderFactory {
 
         public Filter getFilter() {
             return new IncludeExcludeFilter(getIncludes(), getDefinitlyIncludes(), getExcludes());
+        }
+
+        Set<String> getCallers() {
+            return callers;
         }
     }
 
@@ -212,10 +221,15 @@ public class HfeFinderFactory extends FinderFactory {
         return StringUtils.join(strings.stream().map(s -> String.format(toReplace, s)).collect(Collectors.toSet()), "\n");
     }
 
-    public static void replaceScan(Collection<String> includes, Collection<String> defintitlyIncludes, Collection<String> excludes) {
+    public static void replaceCallers(Collection<String> callers) {
+        replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>(), callers);
+    }
+
+    public static void replaceScan(Collection<String> includes, Collection<String> defintitlyIncludes, Collection<String> excludes, Collection<String> callers) {
         String includeString = instaString(includes, "<include>%s</include>");
         String definitlyIncludeString = instaString(defintitlyIncludes, "<definitlyInclude>%s</definitlyInclude>");
         String excludeString = instaString(excludes, "<exclude>%s</exclude>");
+        String callerString = instaString(callers, "<caller>%s</caller>");
         String xml = String.format("<?xml version=\"1.0\"?>\n" +
                 "<scan>\n" +
                 "    <includes>\n" +
@@ -227,7 +241,10 @@ public class HfeFinderFactory extends FinderFactory {
                 "    <excludes>\n" +
                 "        %s\n" +
                 "    </excludes>\n" +
-                "</scan>", includeString, definitlyIncludeString, excludeString);
+                "    <callers>\n" +
+                "        %s\n" +
+                "    </callers>\n" +
+                "</scan>", includeString, definitlyIncludeString, excludeString, callerString);
         System.getProperties().put(FINDER_XML, xml);
     }
 

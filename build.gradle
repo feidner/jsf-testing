@@ -12,18 +12,74 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        output.resourcesDir = "build/classes/main"
+    }
+    test {
+        output.resourcesDir = "build/classes/test"
+    }
+}
+
 dependencies {
 
+    //compileOnly 'javax.servlet:javax.servlet-api:3.1.0'
+    //compileOnly 'javax.inject:javax.inject:1'
+
     //compile 'javax.faces:jsf-api:2.1'
-    compileOnly 'javax.servlet:javax.servlet-api:3.1.0'
+    //compileOnly 'org.apache.myfaces.core:myfaces-api:2.1.17'
+    compileOnly 'org.apache.tomee:javaee-api:7.0-1'
+    //compileOnly 'javax.enterprise:cdi-api:1.2'
+
 
     testCompile 'org.testng:testng:6.11'
+    //testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-all:1.10.19'
 
     testCompile 'org.apache.httpcomponents:httpclient:4.5.3'
     testCompile ('org.seleniumhq.selenium:selenium-java:3.3.1') {
         exclude module: 'junit'
     }
-    testCompile ('org.apache.openejb:tomee-embedded:1.7.4') {
+
+    testCompile ('org.apache.tomee:tomee-embedded:7.0.3') {
+        exclude module: 'junit'
+        exclude module: 'tomee-jaxrs'
+        exclude module: 'openejb-cxf'
+        exclude module: 'openejb-cxf-rs'
+        //exclude module: 'javaee-api'
+        //exclude module: 'tomcat-annotations-api'
+    }
+
+    testCompile ('org.apache.tomee:openejb-mockito:7.0.3') {
         exclude module: 'junit'
     }
+
+    //testCompile 'org.apache.tomee:arquillian-common:7.0.3'
+    //testCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.1.13.Final'
+    //testCompile 'org.jboss.arquillian.testng:arquillian-testng-container:1.1.13.Final'
+
+
+
+    //testCompile 'org.jboss.arquillian.extension:arquillian-warp-impl:1.0.0.Alpha8'
+    //testCompile 'org.jboss.arquillian.extension:arquillian-warp:1.0.0.Alpha8'
+    //testCompile 'org.jboss.arquillian.extension:arquillian-warp-jsf:1.0.0.Alpha8'
+
+    //testCompile 'org.jboss.arquillian.container:arquillian-tomcat-embedded-8:RELEASE'
+
+
+    //testCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.1.13.Final'
+    //testCompile 'org.jboss.arquillian.graphene:graphene-webdriver:2.2.0'
+
+
+
+
+/*
+    testCompile ('org.apache.openejb:tomee-embedded:1.7.4') {
+        exclude module: 'junit'
+        //exclude module:
+        //exclude module: 'myfaces-api'
+    }*/
+
+
+    //testCompile 'org.apache.tomee:javaee-api:7.0-1'
 }
