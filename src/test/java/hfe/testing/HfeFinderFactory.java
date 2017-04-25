@@ -7,7 +7,6 @@ import org.apache.openejb.config.FinderFactory;
 import org.apache.openejb.config.Module;
 import org.apache.openejb.config.WebModule;
 import org.apache.openejb.util.Saxs;
-import org.apache.webbeans.util.ClassUtil;
 import org.apache.xbean.finder.Annotated;
 import org.apache.xbean.finder.IAnnotationFinder;
 import org.apache.xbean.finder.archive.*;
@@ -18,7 +17,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.annotation.ManagedBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.xml.parsers.SAXParser;
@@ -34,13 +32,12 @@ import java.util.stream.Collectors;
 public class HfeFinderFactory extends FinderFactory {
     private static final String FINDER_XML = "FINDER_XML";
     private Filter filter;
-    private StfpFinderXmlScanner scanner;
 
     public HfeFinderFactory() {
         if (!System.getProperties().containsKey(FINDER_XML)) {
-            replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+            replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>());
         }
-        scanner = read();
+        HfeFinderXmlScanner scanner = read();
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-includes: %s", scanner.getIncludes()));
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-definitly: %s", scanner.getDefinitlyIncludes()));
         Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### Dateinamen-excludes: %s", scanner.getExcludes()));
@@ -55,7 +52,7 @@ public class HfeFinderFactory extends FinderFactory {
             WebModule webModule = (WebModule)module;
             List<URL> scanableUrls = webModule.getScannableUrls();
             StfpConfigureableClasspathArchive archive = new StfpConfigureableClasspathArchive(webModule, filter, scanableUrls);
-            HfeAnnotationFinder annotationFinder = new HfeAnnotationFinder(archive, this);
+            HfeAnnotationFinder annotationFinder = new HfeAnnotationFinder(archive);
             annotationFinder.link();
             finder = annotationFinder;
             Logger.getLogger(HfeFinderFactory.class.getSimpleName()).info(String.format("### %s: jar: %s", ((Module) module).getUniqueId(), module.getJarLocation()));
@@ -70,10 +67,9 @@ public class HfeFinderFactory extends FinderFactory {
 
 
     private static class HfeAnnotationFinder extends OpenEJBAnnotationFinder {
-        private HfeFinderFactory finder;
-        HfeAnnotationFinder(StfpConfigureableClasspathArchive archive, HfeFinderFactory finder) {
+
+        HfeAnnotationFinder(StfpConfigureableClasspathArchive archive) {
             super(archive);
-            this.finder = finder;
         }
 
         @Override
@@ -82,11 +78,6 @@ public class HfeFinderFactory extends FinderFactory {
                 List<Annotated<Class<?>>> classes = super.findMetaAnnotatedClasses(annotation);
                 Set<Annotated<Class<?>>> classesWithStartupAnnotation = classes.stream().filter(clazz -> clazz.isAnnotationPresent(Startup.class)).collect(Collectors.toSet());
                 //classes.removeAll(classesWithStartupAnnotation);
-                return classes;
-            }
-            if(annotation == ManagedBean.class) {
-                List<Annotated<Class<?>>> classes = super.findMetaAnnotatedClasses(annotation);
-                finder.scanner.getCallers().stream().map(ClassUtil::getClassFromName).filter(clazz -> clazz != null).forEach(caller -> classes.add(new AnnotatedTestObject<>(caller)));
                 return classes;
             }
             return super.findMetaAnnotatedClasses(annotation);
@@ -137,7 +128,7 @@ public class HfeFinderFactory extends FinderFactory {
         }
     }
 
-    private static class StfpFinderXmlScanner extends DefaultHandler {
+    private static class HfeFinderXmlScanner extends DefaultHandler {
         private final Set<String> includes = new HashSet<>(), definitlyIncludes = new HashSet<>(), excludes = new HashSet<>(), callers = new HashSet<>();
         private Set<String> current;
 
@@ -221,15 +212,10 @@ public class HfeFinderFactory extends FinderFactory {
         return StringUtils.join(strings.stream().map(s -> String.format(toReplace, s)).collect(Collectors.toSet()), "\n");
     }
 
-    public static void replaceCallers(Collection<String> callers) {
-        replaceScan(new HashSet<>(), new HashSet<>(), new HashSet<>(), callers);
-    }
-
-    public static void replaceScan(Collection<String> includes, Collection<String> defintitlyIncludes, Collection<String> excludes, Collection<String> callers) {
+    public static void replaceScan(Collection<String> includes, Collection<String> defintitlyIncludes, Collection<String> excludes) {
         String includeString = instaString(includes, "<include>%s</include>");
         String definitlyIncludeString = instaString(defintitlyIncludes, "<definitlyInclude>%s</definitlyInclude>");
         String excludeString = instaString(excludes, "<exclude>%s</exclude>");
-        String callerString = instaString(callers, "<caller>%s</caller>");
         String xml = String.format("<?xml version=\"1.0\"?>\n" +
                 "<scan>\n" +
                 "    <includes>\n" +
@@ -241,24 +227,19 @@ public class HfeFinderFactory extends FinderFactory {
                 "    <excludes>\n" +
                 "        %s\n" +
                 "    </excludes>\n" +
-                "    <callers>\n" +
-                "        %s\n" +
-                "    </callers>\n" +
-                "</scan>", includeString, definitlyIncludeString, excludeString, callerString);
+                "</scan>", includeString, definitlyIncludeString, excludeString);
         System.getProperties().put(FINDER_XML, xml);
     }
 
-    public static StfpFinderXmlScanner read() {
+    public static HfeFinderXmlScanner read() {
         String xmlString = System.getProperties().getProperty(FINDER_XML);
         try {
             final SAXParser parser = Saxs.factory().newSAXParser();
-            final StfpFinderXmlScanner handler = new StfpFinderXmlScanner();
+            final HfeFinderXmlScanner handler = new HfeFinderXmlScanner();
             parser.parse(IOUtils.toInputStream(xmlString, Charset.defaultCharset()), handler);
             return handler;
         } catch (final Exception e) {
             throw new RuntimeException("can't parse " + xmlString);
         }
     }
-
-
 }

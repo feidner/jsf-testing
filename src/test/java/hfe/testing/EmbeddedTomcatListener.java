@@ -1,17 +1,19 @@
 package hfe.testing;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.openejb.Injector;
 import org.apache.openejb.config.FinderFactory;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.spi.ContainerSystem;
 import org.apache.tomee.embedded.EmbeddedTomEEContainer;
+import org.apache.webbeans.container.BeanManagerImpl;
 import org.apache.webbeans.spi.ScannerService;
 import org.testng.IInvokedMethod;
 import org.testng.IInvokedMethodListener;
 import org.testng.ITestResult;
 
 import javax.ejb.embeddable.EJBContainer;
+import javax.enterprise.inject.spi.InjectionTarget;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -49,6 +51,7 @@ public class EmbeddedTomcatListener implements IInvokedMethodListener {
         System.setProperty("webapp." + ScannerService.class.getName(), hfe.testing.HfeScannerService.class.getTypeName());
 
         //properties.put(DeploymentFilterable.CLASSPATH_INCLUDE, ".*classes.*");
+        //properties.put(DeploymentFilterable.CLASSPATH_EXCLUDE, ".*InjectionTest.*");
 
         //System.setProperty("openejb.scan.webapp.container", Boolean.TRUE.toString());
         //System.setProperty("openejb.scan.webapp.container.skip-folder", Boolean.FALSE.toString());
@@ -57,11 +60,19 @@ public class EmbeddedTomcatListener implements IInvokedMethodListener {
         System.setProperty(FinderFactory.class.getTypeName(), HfeFinderFactory.class.getTypeName());
         System.setProperty("tomee.webapp.externalRepositories", "build/classes/main,build/classes/test");
 
-        HfeFinderFactory.replaceCallers(Sets.newHashSet(testResult.getInstance().getClass().getTypeName()));
-
         container = (EmbeddedTomEEContainer) EmbeddedTomEEContainer.createEJBContainer(properties);
-        Injector.inject(testResult.getInstance());
+
+        addTestsAsManagedBean(testResult);
+
         collectContextClasses("");
+    }
+
+    private void addTestsAsManagedBean(ITestResult testResult) {
+        final ContainerSystem containerSystem = SystemInstance.get().getComponent(ContainerSystem.class);
+        BeanManagerImpl beanManager = containerSystem.deployments()[0].getWebBeansContext().getBeanManagerImpl();
+        @SuppressWarnings("unchecked") Class<Object> clazz = (Class<Object>) testResult.getInstance().getClass();
+        InjectionTarget<Object> target = beanManager.createInjectionTarget(beanManager.createAnnotatedType(clazz));
+        target.inject(testResult.getInstance(), beanManager.createCreationalContext(null));
     }
 
     @Override
