@@ -1,5 +1,6 @@
 package hfe.tools;
 
+import hfe.testing.EmbeddedContainer;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -31,21 +32,23 @@ public class HfeUtils {
         return clazz;
     }
 
-    public static void runWithHtmlSite(String sitePath, String dirPathToDelete, String siteContent, Runnable run) throws Exception {
-        runWithHtmlSite(sitePath, dirPathToDelete, siteContent, () -> {
+    public static void runWithHtmlSite(String siteName, String dirPathToDelete, String siteContent, Runnable run) throws Exception {
+        runWithHtmlSite(siteName, dirPathToDelete, siteContent, () -> {
             run.run();
             return null;
         });
     }
 
-    public static <T> T runWithHtmlSite(String sitePath, String dirPathToDelete, String siteContent, Callable<T> run) throws Exception {
-        File f = new File(sitePath);
+    public static <T> T runWithHtmlSite(String siteName, String dirPathToDelete, String siteContent, Callable<T> run) throws Exception {
+        siteName = EmbeddedContainer.buildModuleUri(siteName);
+        File f = new File(siteName);
         if(dirPathToDelete == null) {
             f.deleteOnExit();
         }
         FileUtils.write(f, siteContent, Charset.defaultCharset());
         T obj = run.call();
         if(dirPathToDelete != null) {
+            dirPathToDelete = EmbeddedContainer.buildModuleUri(dirPathToDelete);
             FileUtils.deleteDirectory(new File(dirPathToDelete));
         }
         return obj;

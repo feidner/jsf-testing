@@ -1,5 +1,6 @@
 package hfe.servlets;
 
+import hfe.testing.EmbeddedContainer;
 import hfe.testing.EmbeddedTomcatListener;
 import hfe.tools.HfeUtils;
 import org.openqa.selenium.WebDriver;
@@ -15,8 +16,8 @@ public class InitServletTest {
     @Test
     public void initWebsiteWithHtmlUnitDriver() throws Exception {
         WebDriver driver = new HtmlUnitDriver();
-        HfeUtils.runWithHtmlSite(EmbeddedTomcatListener.WEB_INF_PATH + "/init/call.html", EmbeddedTomcatListener.WEB_INF_PATH + "/init/", "pippa",
-                () -> driver.get("http://localhost:8080/" + EmbeddedTomcatListener.APP_NAME + "/init/call.html"));
+        HfeUtils.runWithHtmlSite("WEB-INF/init/call.html", "WEB-INF/init/", "pippa",
+                () -> driver.get(EmbeddedContainer.buildUrl("init/call.html")));
         assertTrue(driver.getPageSource().contains("pippa"));
         driver.close();
         driver.quit();

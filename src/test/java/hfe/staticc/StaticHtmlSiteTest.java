@@ -1,5 +1,6 @@
 package hfe.staticc;
 
+import hfe.testing.EmbeddedContainer;
 import hfe.testing.EmbeddedTomcatListener;
 import hfe.tools.HfeUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,27 +21,27 @@ public class StaticHtmlSiteTest {
 
     @Test
     public void loadSiteContainingStringMatsInHtmlCode_ThenResponseContainsStringMats() throws Exception {
-        HfeUtils.runWithHtmlSite("build/war_exploded/call.html", null, "mats",
-            () -> execute(new HttpGet("http://localhost:8080/hfe/call.html"),
+        HfeUtils.runWithHtmlSite("call.html", null, "mats",
+            () -> execute(new HttpGet(EmbeddedContainer.buildUrl("call.html")),
                     response -> assertEquals(EntityUtils.toString(response.getEntity()), "mats")));
     }
 
     @Test
     public void loadExisintgSite_ThenStatusCodeIs200() throws Exception {
-        HfeUtils.runWithHtmlSite("build/war_exploded/call200.html", null, "mats",
-                () -> execute(new HttpGet("http://localhost:8080/hfe/call200.html"),
+        HfeUtils.runWithHtmlSite("call200.html", null, "mats",
+                () -> execute(new HttpGet(EmbeddedContainer.buildUrl("call200.html")),
                         response -> assertEquals(response.getStatusLine().getStatusCode(), 200)));
     }
 
     @Test
     public void loadNotExisintgSite_ThenStatusCodeIs404() throws Exception {
-        execute(new HttpGet("http://localhost:8080/hfe/nichtda.html"),
+        execute(new HttpGet(EmbeddedContainer.buildUrl("nichtda.html")),
                 response -> assertEquals(response.getStatusLine().getStatusCode(), 404));
     }
 
     @Test
     public void login() {
-        execute(new HttpGet("http://localhost:8080/hfe/login.xhtml"), response -> {
+        execute(new HttpGet(EmbeddedContainer.buildUrl("login.xhtml")), response -> {
             Logger.getLogger("me").info(EntityUtils.toString(response.getEntity()));
             assertEquals(response.getStatusLine().getStatusCode(), 200);
         });

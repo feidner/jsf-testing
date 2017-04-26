@@ -4,7 +4,7 @@ import hfe.tools.HfeUtils;
 import org.testng.ITestNGListener;
 import org.testng.annotations.Listeners;
 
-public class TestNgContainerPredicate implements ContainerPredicate {
+public class TestNgContainerPredicate implements EmbeddedContainer.ContainerPredicate {
     @Override
     public boolean isContainerTest(Class<?> clazz) {
         Class<?> topLevelClass = HfeUtils.getTopLevelEnclosingClass(clazz);

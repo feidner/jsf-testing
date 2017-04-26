@@ -1,6 +1,7 @@
 package hfe.xhtml;
 
 import hfe.beans.Hello;
+import hfe.testing.EmbeddedContainer;
 import hfe.testing.EmbeddedTomcatListener;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -29,8 +30,9 @@ public class LabelSiteTest {
     @Test
     public void labelHasValueMats_RequestSite_ThenResponseBodyContainsMats() throws Exception {
         testVal = "Mats und Filippa";
+
         WebDriver driver = new HtmlUnitDriver();
-        driver.get("http://localhost:8080/" + EmbeddedTomcatListener.APP_NAME + "/faces/label.xhtml");
+        driver.get(EmbeddedContainer.buildUrl("faces/label.xhtml"));
         String pageSource = driver.getPageSource();
         WebElement body = driver.findElement(By.tagName("body"));
         assertEquals(body.getText(), testVal);

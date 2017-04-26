@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3c.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<!-- HEAD -->
+<h:head>
+	<h:outputScript library="js" name="spear.js" />
+	<h:outputScript library="primefaces-siemenstheme/js" name="common.js" />
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<link rel="icon" href="#{resource['primefaces-siemenstheme:images/icons/favicon.ico']}" type="image/x-icon" />
+	<link rel="shortcut icon" href="#{resource['primefaces-siemenstheme:images/icons/favicon.ico']}" type="image/x-icon" />
+</h:head>
+<!-- /HEAD -->
+
+<h:body>
+	Wolle
+	<f:event type="preRenderView" listener="#{loginBean.checkLogin}" />
+	<div id="wrapper">
+		<!-- HEADER include -->
+		<div id="header">
+			<div id="logo"></div>
+			<div id="personal"></div>
+		</div>
+		<!-- /HEADER include -->
+
+		<!-- TOOLBAR include -->
+		<div id="toolbar">
+			<p id="system-id"><h:outputText value="#{feConstants.SID}"/></p>
+			<h:inputHidden value="#{feConstants.systemColor}" id="system-color"/>
+		</div>
+		<div id="navbar"></div>
+		<div id="content">
+			<div class="login">
+				<h:form id="login_form" >
+				    <h:panelGrid columns="2">
+				        <p:outputLabel for="username" value="Username" />
+				        <p:inputText id="username" name="j_username" value="#{loginBean.username}" autocomplete="off"/>            
+				        <p:outputLabel for="username" value="Password" />
+				        <p:password id="password" name="j_password" value="#{loginBean.password}"/>
+				        <p:commandButton id="submit" value="Login" ajax="false" action="#{loginBean.formLogin()}" onclick="return onSubmit();"/>
+				    </h:panelGrid>
+				    <p:inputText type="hidden" value="#{loginBean.originalUri}" />
+				</h:form>
+				<h:panelGroup rendered="#{loginBean.loginFailed}">
+					<div class="login_error"><p>User authentication failed or user
+						account is locked.</p></div>
+				</h:panelGroup>
+			</div>
+		</div>
+		
+		<SCRIPT type="text/javascript">
+			function onSubmit(){
+				
+				if($('#login_form\\:username').val()===''){
+					return false;
+				}
+				if($('#login_form\\:password').val()===''){
+					return false;
+				}
+				//document.getElementById('login_form').action='j_security_check';
+				return true;
+			}
+		</SCRIPT>
+	</div>
+</h:body>
+</html>

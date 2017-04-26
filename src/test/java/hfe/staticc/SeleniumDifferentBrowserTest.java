@@ -1,5 +1,6 @@
 package hfe.staticc;
 
+import hfe.testing.EmbeddedContainer;
 import hfe.testing.EmbeddedTomcatListener;
 import hfe.tools.HfeUtils;
 import org.openqa.selenium.WebDriver;
@@ -45,7 +46,7 @@ public class SeleniumDifferentBrowserTest {
     private void spoky(Supplier<WebDriver> driverSupplier) {
         try {
             WebDriver driver = driverSupplier.get();
-            HfeUtils.runWithHtmlSite("build/war_exploded/mats.html", null, "<html><body>mats</body></html>", () -> driver.get("http://localhost:8080/hfe/callme.html"));
+            HfeUtils.runWithHtmlSite("callme.html", null, "<html><body>mats</body></html>", () -> driver.get(EmbeddedContainer.buildUrl("callme.html")));
             Logger.getLogger("peep").info(driver.getPageSource());
             assertTrue(driver.getPageSource().contains("mats"));
             driver.close();
