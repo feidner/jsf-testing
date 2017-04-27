@@ -23,8 +23,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.testng.Assert.assertTrue;
-
 public class EmbeddedContainer {
 
     public static final String MODULE_PATH = "src/main/webapp/";
@@ -37,7 +35,7 @@ public class EmbeddedContainer {
     }
 
     public static void start(Object testClassObject) {
-        assertTrue(getTestsNeedEjbContainer().contains(testClassObject.getClass().getTypeName()));
+        assert getTestsNeedEjbContainer().contains(testClassObject.getClass().getTypeName()) : "Muss ein ContainerTest sein";
         if (container != null) {
             return;
         }
@@ -70,7 +68,7 @@ public class EmbeddedContainer {
         return container;
     }
 
-    private static BeanContext getBeanContext() {
+    public static BeanContext getBeanContext() {
         return SystemInstance.get().getComponent(ContainerSystem.class).deployments()[0];
     }
 
@@ -94,21 +92,20 @@ public class EmbeddedContainer {
 
     private static <T> Set<Class<T>> collectContextClasses(String regex) {
         Set<Class<T>> classes = new HashSet<>();
-        print("java:global/");
-        print("java:app/AppName");
-        print("java:app/BeanManager");
-        print("java:hfe");
+        print("");
         return classes;
     }
 
     private static <T> void print(String name) {
 
         try {
+            Logger.getLogger("print").info("init: " + name);
             NamingEnumeration<NameClassPair> enumeration = getContainer().getContext().list(name);
             while (enumeration.hasMoreElements()) {
                 try {
                     NameClassPair pair = enumeration.next();
-                    Logger.getLogger("print").info("class: " + pair.getClassName());
+                    Logger.getLogger("print").info(pair.getName() + " -class: " + pair.getClassName());
+                    print(name + ":" + pair.getName());
                 } catch (NamingException e) {
 
                 }

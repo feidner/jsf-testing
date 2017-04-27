@@ -2,6 +2,7 @@ package hfe.tools;
 
 import hfe.testing.EmbeddedContainer;
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.WebDriver;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 public class HfeUtils {
 
@@ -52,5 +54,12 @@ public class HfeUtils {
             FileUtils.deleteDirectory(new File(dirPathToDelete));
         }
         return obj;
+    }
+
+    public static boolean runForUrl(WebDriver driver, String url, Function<WebDriver, Boolean> run) {
+        driver.get(EmbeddedContainer.buildUrl(url));
+        boolean success = run.apply(driver);
+        driver.close();
+        return success;
     }
 }

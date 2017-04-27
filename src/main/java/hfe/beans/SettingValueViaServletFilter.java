@@ -6,12 +6,12 @@ import java.util.logging.Logger;
 
 @Named
 @RequestScoped
-public class Hello {
+public class SettingValueViaServletFilter {
 
-    private String value = "henrik";
+    private String value;
 
-    public Hello() {
-        Logger.getLogger(Hello.class.getSimpleName()).info("Konstruktor");
+    public SettingValueViaServletFilter() {
+        Logger.getLogger(SettingValueViaServletFilter.class.getSimpleName()).info("Konstruktor");
     }
 
     public String getValue() {

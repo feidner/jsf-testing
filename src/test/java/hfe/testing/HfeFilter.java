@@ -8,15 +8,18 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HfeFilter extends GenericFilter {
+    public static Map<String, Runnable> REQUEST_MANIPULATIONS = new HashMap<>();
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if(RequestFacade.class.isInstance(request)) {
             RequestFacade facade = (RequestFacade)request;
-            if(facade.getRequestURI().contains("label.xhtml")) {
-                facade.getScheme();
-            }
+            REQUEST_MANIPULATIONS.keySet().stream().
+               filter(uriSubString -> facade.getRequestURI().
+               contains(uriSubString)).forEach(uriSubString -> REQUEST_MANIPULATIONS.get(uriSubString).run());
         }
         chain.doFilter(request, response);
     }
