@@ -53,13 +53,16 @@ public class EmbeddedContainer {
         //System.setProperty("openejb.scan.webapp.container", Boolean.TRUE.toString());
         //System.setProperty("openejb.scan.webapp.container.skip-folder", Boolean.FALSE.toString());
         //System.setProperty("openejb.additional.include", "classes");
+        //System.setProperty("xbean.finder.use.get-resources", Boolean.FALSE.toString());
 
         System.setProperty(FinderFactory.class.getTypeName(), HfeFinderFactory.class.getTypeName());
         System.setProperty("tomee.webapp.externalRepositories", "build/classes/main,build/classes/test");
 
+        SystemInstance.get().addObserver(new HfeObserver());
+
         container = (EmbeddedTomEEContainer) EmbeddedTomEEContainer.createEJBContainer(properties);
 
-        addTestsAsManagedBean(testClassObject);
+        addObjectAsInjectionTarget(testClassObject);
 
         collectContextClasses("");
     }
@@ -72,7 +75,7 @@ public class EmbeddedContainer {
         return SystemInstance.get().getComponent(ContainerSystem.class).deployments()[0];
     }
 
-    private static void addTestsAsManagedBean(Object testClassObject) {
+    public static void addObjectAsInjectionTarget(Object testClassObject) {
         BeanManager beanManager = getBeanContext().getWebBeansContext().getBeanManagerImpl();
         @SuppressWarnings("unchecked")
         Class<Object> clazz = (Class<Object>) testClassObject.getClass();

@@ -18,8 +18,8 @@ public class HfeFilter extends GenericFilter {
         if(RequestFacade.class.isInstance(request)) {
             RequestFacade facade = (RequestFacade)request;
             REQUEST_MANIPULATIONS.keySet().stream().
-               filter(uriSubString -> facade.getRequestURI().
-               contains(uriSubString)).forEach(uriSubString -> REQUEST_MANIPULATIONS.get(uriSubString).run());
+               filter(uriSubString -> facade.getRequestURI().contains(uriSubString)).
+               forEach(uriSubString -> REQUEST_MANIPULATIONS.get(uriSubString).run());
         }
         chain.doFilter(request, response);
     }
