@@ -1,7 +1,6 @@
 package hfe.testing;
 
 import com.google.common.collect.Sets;
-import hfe.beans.SettingValueViaServletFilter;
 import org.apache.openejb.cdi.WebBeansContextBeforeDeploy;
 import org.apache.openejb.observer.Observes;
 import org.apache.webbeans.annotation.AnyLiteral;
@@ -27,8 +26,8 @@ public class HfeObserver {
 
     public static final Map<Class<?>, HfeSupplier> PRODUCERS = new HashMap<>();
 
-    public static void addProducer(Class<SettingValueViaServletFilter> settingValueViaServletFilterClass, Supplier<Object> supplier) {
-        PRODUCERS.get(settingValueViaServletFilterClass).setSupplier(supplier);
+    public static void addProducer(Class<?> clazz, Supplier<Object> supplier) {
+        PRODUCERS.get(clazz).setSupplier(supplier);
     }
 
     public void observer(@Observes WebBeansContextBeforeDeploy event) {

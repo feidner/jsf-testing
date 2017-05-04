@@ -23,9 +23,9 @@ public class LabelSiteSpecializedAnnotationTest {
 
     @Test
     public void labelHasValueMats_RequestSite_ThenResponseBodyContainsMats() throws Exception {
-        TEST_VALUE = "Mats und Filippa";
+        TEST_VALUE = "Mats";
         assertTrue(HfeUtils.runForUrl(new HtmlUnitDriver(), "faces/settingValueViaSpecializesAnnotation.xhtml", driver -> {
-            assertEquals(driver.findElement(By.tagName("body")).getText(), "Mats und Filippa");
+            assertEquals(driver.findElement(By.tagName("body")).getText(), "Mats");
             Logger.getLogger("html").info(driver.getPageSource());
             return true;
         }));

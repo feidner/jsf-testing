@@ -21,9 +21,9 @@ public class LabelSiteServletFilterTest {
 
     @Test
     public void labelHasValueMats_RequestSite_ThenResponseBodyContainsMats() throws Exception {
-        HfeFilter.REQUEST_MANIPULATIONS.put("settingValueViaServletFilter.xhtml", () -> CDI.current().select(SettingValueViaServletFilter.class).get().setValue("Mats und Filippa"));
+        HfeFilter.REQUEST_MANIPULATIONS.put("settingValueViaServletFilter.xhtml", () -> CDI.current().select(SettingValueViaServletFilter.class).get().setValue("Mats"));
         assertTrue(HfeUtils.runForUrl(new HtmlUnitDriver(), "faces/settingValueViaServletFilter.xhtml", driver -> {
-            assertEquals(driver.findElement(By.tagName("body")).getText(), "Mats und Filippa");
+            assertEquals(driver.findElement(By.tagName("body")).getText(), "Mats");
             return true;
         }));
     }

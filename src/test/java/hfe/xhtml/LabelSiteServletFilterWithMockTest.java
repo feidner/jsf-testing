@@ -21,11 +21,11 @@ public class LabelSiteServletFilterWithMockTest {
     public void labelHasValueMats_RequestSite_ThenResponseBodyContainsMats() throws Exception {
         HfeObserver.addProducer(SettingValueViaServletFilter.class, () -> {
             SettingValueViaServletFilter obj = mock(SettingValueViaServletFilter.class);
-            when(obj.getValue()).thenReturn("Mats und Filippa");
+            when(obj.getValue()).thenReturn("Mats");
             return obj;
         });
         assertTrue(HfeUtils.runForUrl(new HtmlUnitDriver(), "faces/settingValueViaServletFilter.xhtml", driver -> {
-            assertEquals(driver.findElement(By.tagName("body")).getText(), "Mats und Filippa");
+            assertEquals(driver.findElement(By.tagName("body")).getText(), "Mats");
             return true;
         }));
     }
