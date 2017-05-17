@@ -3,7 +3,7 @@ package hfe.xhtml;
 import hfe.beans.SettingValueViaServletFilter;
 import hfe.testing.EmbeddedTomcatListener;
 import hfe.testing.HfeObserver;
-import hfe.tools.HfeUtils;
+import hfe.testing.HfeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.testng.annotations.Listeners;

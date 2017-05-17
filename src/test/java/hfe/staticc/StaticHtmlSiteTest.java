@@ -2,7 +2,7 @@ package hfe.staticc;
 
 import hfe.testing.EmbeddedContainer;
 import hfe.testing.EmbeddedTomcatListener;
-import hfe.tools.HfeUtils;
+import hfe.testing.HfeUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;

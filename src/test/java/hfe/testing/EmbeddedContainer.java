@@ -19,30 +19,38 @@ import java.io.File;
 import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EmbeddedContainer {
-
-    public static final String MODULE_PATH = "src/main/webapp/";
-    public static final String WEB_INF_PATH = MODULE_PATH + "WEB-INF/";
-    public static final String APP_NAME = "hfe";
 
     private static EmbeddedTomEEContainer container;
 
     private EmbeddedContainer() {
     }
 
-    public static void start(Object testClassObject) {
+    public static void start(Object testClassObject, String modulePath, String appName) {
         assert getTestsNeedEjbContainer().contains(testClassObject.getClass().getTypeName()) : "Muss ein ContainerTest sein";
         if (container != null) {
             return;
         }
         Map<Object, Object> properties = new HashMap<>();
         properties.put(EJBContainer.PROVIDER, EmbeddedTomEEContainer.class);
-        properties.put(EJBContainer.MODULES, new File[]{new File(MODULE_PATH)});
-        properties.put(EJBContainer.APP_NAME, APP_NAME);
+        properties.put(EJBContainer.MODULES, new File[]{new File(modulePath)});
+        properties.put(EJBContainer.APP_NAME, appName);
+
+        /**
+         * Falls in der web.xml eine solche Resource definiert ist:
+         *
+         * <resource-ref>
+         *     <res-ref-name>hfe/HfeString</res-ref-name>
+         *     <res-type>java.lang.String</res-type>
+         * </resource-ref>
+         *
+         * java.lang.String sind in Tomee keine Resources: http://tomee-openejb.979440.n4.nabble.com/resource-ref-settings-within-openEJB-td4665781.html
+         *
+         * properties.put("resourceid", String.format("new://Resource?type=java.lang.String&class-name=%s&factory-name=create", HfeStringResource.class.getTypeName()));
+         */
 
         System.setProperty("org.apache.openejb.servlet.filters", "hfe.testing.HfeFilter=/*");
         System.setProperty("webapp." + ScannerService.class.getName(), hfe.testing.HfeScannerService.class.getTypeName());
@@ -102,12 +110,12 @@ public class EmbeddedContainer {
     private static <T> void print(String name) {
 
         try {
-            Logger.getLogger("print").info("init: " + name);
+            //Logger.getLogger("print").info("init: " + name);
             NamingEnumeration<NameClassPair> enumeration = getContainer().getContext().list(name);
             while (enumeration.hasMoreElements()) {
                 try {
                     NameClassPair pair = enumeration.next();
-                    Logger.getLogger("print").info(pair.getName() + " -class: " + pair.getClassName());
+              //      Logger.getLogger("print").info(pair.getName() + " -class: " + pair.getClassName());
                     print(name + ":" + pair.getName());
                 } catch (NamingException e) {
 

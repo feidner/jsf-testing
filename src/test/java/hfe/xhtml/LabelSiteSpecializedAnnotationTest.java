@@ -2,7 +2,7 @@ package hfe.xhtml;
 
 import hfe.beans.SettingValueViaSpecializesAnnotation;
 import hfe.testing.EmbeddedTomcatListener;
-import hfe.tools.HfeUtils;
+import hfe.testing.HfeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.testng.annotations.Listeners;

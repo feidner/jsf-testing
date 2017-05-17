@@ -2,7 +2,7 @@ package hfe.servlets;
 
 import hfe.testing.EmbeddedContainer;
 import hfe.testing.EmbeddedTomcatListener;
-import hfe.tools.HfeUtils;
+import hfe.testing.HfeUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.testng.annotations.Listeners;

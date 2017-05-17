@@ -1,9 +1,21 @@
 package hfe.testing;
 
 import com.google.common.collect.Sets;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.core.ApplicationContextFacade;
+import org.apache.catalina.core.StandardContext;
+import org.apache.openejb.AppContext;
+import org.apache.openejb.assembler.classic.event.AssemblerAfterApplicationCreated;
+import org.apache.openejb.assembler.classic.event.ContainerSystemPostCreate;
 import org.apache.openejb.cdi.WebBeansContextBeforeDeploy;
+import org.apache.openejb.cdi.WebBeansContextCreated;
+import org.apache.openejb.config.AppModule;
+import org.apache.openejb.config.event.BeforeAppInfoBuilderEvent;
+import org.apache.openejb.config.event.BeforeDeploymentEvent;
 import org.apache.openejb.observer.Observes;
 import org.apache.webbeans.annotation.AnyLiteral;
+import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.portable.events.generics.GProcessInjectionTarget;
 import org.apache.webbeans.portable.events.generics.GenericBeanEvent;
 
@@ -11,8 +23,10 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Reception;
 import javax.enterprise.event.TransactionPhase;
 import javax.enterprise.inject.spi.*;
+import javax.servlet.SessionTrackingMode;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +46,41 @@ public class HfeObserver {
 
     public void observer(@Observes WebBeansContextBeforeDeploy event) {
         event.getContext().getBeanManagerImpl().getNotificationManager().addObserver(new HfeObserverMethod(), ProcessInjectionTarget.class);
+    }
+
+    public void event(@Observes LifecycleEvent event) {
+        if(Lifecycle.CONFIGURE_START_EVENT.equals(event.getType())) {
+            StandardContext context = (StandardContext)event.getLifecycle();
+            context.addPropertyChangeListener(evt -> {
+                if("configured".equals(evt.getPropertyName())) {
+                    ApplicationContextFacade facade = (ApplicationContextFacade)context.getServletContext();
+                    if(facade.getEffectiveSessionTrackingModes().contains(SessionTrackingMode.COOKIE)) {
+
+                    }
+                    facade.setSessionTrackingModes(Sets.newHashSet(SessionTrackingMode.URL));
+                }
+            });
+        }
+    }
+
+    public void event(@Observes AssemblerAfterApplicationCreated event) {
+        AppContext context = event.getContext();
+    }
+
+    public void event(@Observes ContainerSystemPostCreate event) {
+
+    }
+
+    public void event(@Observes WebBeansContextCreated event) {
+        WebBeansContext context = event.getContext();
+    }
+
+    public void event(@Observes BeforeAppInfoBuilderEvent event) {
+        AppModule module = event.getAppModule();
+    }
+
+    public void event(@Observes BeforeDeploymentEvent event) {
+        URL[] urls = event.getUrls();
     }
 
     private static class HfeObserverMethod implements ObserverMethod<Object>, GenericBeanEvent, Extension {

@@ -1,6 +1,5 @@
-package hfe.tools;
+package hfe.testing;
 
-import hfe.testing.EmbeddedContainer;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
 

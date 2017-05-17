@@ -2,7 +2,7 @@ package hfe.staticc;
 
 import hfe.testing.EmbeddedContainer;
 import hfe.testing.EmbeddedTomcatListener;
-import hfe.tools.HfeUtils;
+import hfe.testing.HfeUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -27,7 +27,7 @@ public class SeleniumDifferentBrowserTest {
 
     @Test
     public void initWebsiteWithChrome() {
-        System.setProperty("webdriver.chrome.driver", "src/test/resources/selenium/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "src/test/selenium/chromedriver2.27.exe");
         spoky(ChromeDriver::new);
     }
 
