@@ -54,10 +54,11 @@ public class HfeObserver {
             context.addPropertyChangeListener(evt -> {
                 if("configured".equals(evt.getPropertyName())) {
                     ApplicationContextFacade facade = (ApplicationContextFacade)context.getServletContext();
-                    if(facade.getEffectiveSessionTrackingModes().contains(SessionTrackingMode.COOKIE)) {
-
+                    if(facade.getEffectiveSessionTrackingModes().contains(SessionTrackingMode.COOKIE) &&
+                            facade.getSessionCookieConfig().isSecure()) {
+                        //facade.setSessionTrackingModes(Sets.newHashSet(SessionTrackingMode.URL));
+                        facade.getSessionCookieConfig().setSecure(false);
                     }
-                    facade.setSessionTrackingModes(Sets.newHashSet(SessionTrackingMode.URL));
                 }
             });
         }
