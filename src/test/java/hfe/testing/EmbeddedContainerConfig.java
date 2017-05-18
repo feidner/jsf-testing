@@ -10,11 +10,11 @@ import static java.lang.annotation.ElementType.TYPE;
 @Target({TYPE})
 public @interface EmbeddedContainerConfig {
 
-    String MODULE_PATH = "src/main/webapp/";
-    String APP_NAME = "hfe";
+    String DEFAULT_MODULE_PATH = "src/main/webapp/";
+    String DEFAULT_APP_NAME = "hfe";
 
 
-    String modulePath() default MODULE_PATH;
+    String modulePath() default DEFAULT_MODULE_PATH;
 
-    String appName() default APP_NAME;
+    String appName() default DEFAULT_APP_NAME;
 }
