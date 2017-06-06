@@ -57,6 +57,8 @@ dependencies {
     //testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-all:1.10.19'
     testCompile 'org.jsoup:jsoup:1.10.2'
+    testCompile 'org.apache.maven.shared:maven-shared-utils:3.0.0'
+    //testCompile 'org.omnifaces:omnifaces:2.6.2'
 
     testCompile 'org.apache.httpcomponents:httpclient:4.5.3'
     testCompile ('org.seleniumhq.selenium:selenium-java:3.3.1') {

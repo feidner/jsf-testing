@@ -41,7 +41,7 @@ public class HfeTestFieldTest {
     @Test
     public void login_ThenBeanMethodCalledOneTime() {
         submit(webDriver -> {});
-        verify(obj, times(1)).login();
+        verify(obj, times(1)).login("henrik", "mas");
     }
 
     @Test

@@ -85,6 +85,10 @@ public class EmbeddedContainer {
 
     public static void addObjectAsInjectionTarget(Object testClassObject) {
         BeanManager beanManager = getBeanContext().getWebBeansContext().getBeanManagerImpl();
+        addObjectAsInjectionTarget(beanManager, testClassObject);
+    }
+
+    public static void addObjectAsInjectionTarget(BeanManager beanManager, Object testClassObject) {
         @SuppressWarnings("unchecked")
         Class<Object> clazz = (Class<Object>) testClassObject.getClass();
         InjectionTarget<Object> target = beanManager.createInjectionTarget(beanManager.createAnnotatedType(clazz));

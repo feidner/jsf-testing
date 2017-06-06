@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 /**
  * Wird als Extension fuer TomEE in resources/META-INF/org.apache.openejb.extensions angegeben.
@@ -61,6 +62,8 @@ public class HfeObserver {
                     }
                 }
             });
+        } else if(Lifecycle.AFTER_START_EVENT.equals(event.getType())) {
+            Logger.getLogger("nop").info("started");
         }
     }
 

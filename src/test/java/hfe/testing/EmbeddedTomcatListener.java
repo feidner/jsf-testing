@@ -1,13 +1,11 @@
 package hfe.testing;
 
-import org.testng.IInvokedMethod;
-import org.testng.IInvokedMethodListener;
-import org.testng.ITestResult;
+import org.testng.*;
 
-public class EmbeddedTomcatListener implements IInvokedMethodListener {
+public class EmbeddedTomcatListener implements IConfigurationListener2 {
 
     @Override
-    public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
+    public void beforeConfiguration(ITestResult testResult) {
         String modulePath = EmbeddedContainerConfig.DEFAULT_MODULE_PATH;
         String appName = EmbeddedContainerConfig.DEFAULT_APP_NAME;
         if(testResult.getInstance().getClass().isAnnotationPresent(EmbeddedContainerConfig.class)) {
@@ -18,7 +16,17 @@ public class EmbeddedTomcatListener implements IInvokedMethodListener {
     }
 
     @Override
-    public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
+    public void onConfigurationSuccess(ITestResult itr) {
+
+    }
+
+    @Override
+    public void onConfigurationFailure(ITestResult itr) {
+
+    }
+
+    @Override
+    public void onConfigurationSkip(ITestResult itr) {
 
     }
 }
